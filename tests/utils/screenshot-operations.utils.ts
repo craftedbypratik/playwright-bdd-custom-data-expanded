@@ -6,6 +6,7 @@ export class ScreenshotOperations {
 
   /**
    * Takes a screenshot and stores it inside test output directory
+   * Can also be used to attach into the PDF or the DOCX reports
    */
   static async save(
     page: Page,

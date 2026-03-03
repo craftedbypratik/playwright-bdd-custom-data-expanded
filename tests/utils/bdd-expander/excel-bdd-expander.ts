@@ -143,7 +143,7 @@ async function handleTableExamples(examplesPart: string) {
     .map(h => h.trim())
     .filter(Boolean);
 
-  // ✅ HEADER-ONLY DECISION (new + legacy)
+  // HEADER-ONLY DECISION (new + legacy)
   const EXTERNAL_HEADERS = [
     'fileType',
     'filePath',
@@ -154,7 +154,7 @@ async function handleTableExamples(examplesPart: string) {
 
   const isExternalTable = headers.some(h => EXTERNAL_HEADERS.includes(h));
 
-  // ❌ Pure Gherkin Examples → DO NOT EXPAND
+  // Pure Gherkin Examples → DO NOT EXPAND
   if (!isExternalTable) {
     return [];
   }

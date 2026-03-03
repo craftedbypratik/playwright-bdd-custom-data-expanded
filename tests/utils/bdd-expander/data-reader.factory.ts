@@ -3,10 +3,12 @@ import { ExcelReader } from './readers/excel.reader';
 import { CsvReader } from './readers/csv.reader';
 import { JsonReader } from './readers/json.reader';
 
+/* Interface for DataReader and Factory to create appropriate reader based on file type */
 export interface DataReader {
   read(): Promise<Array<Record<string, string>>>;
 }
 
+/* Factory to create appropriate reader based on file type */
 export class DataReaderFactory {
 
   static create(meta: {

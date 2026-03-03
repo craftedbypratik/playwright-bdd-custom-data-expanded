@@ -1,6 +1,10 @@
 import fs from 'fs';
 import { DataReader } from '../data-reader.factory';
 
+/*
+* CsvReader implementation to read CSV files and convert them into an array of objects.
+* Each object represents a row in the CSV, with keys derived from the header row.
+*/
 export class CsvReader implements DataReader {
 
   constructor(private filePath: string) {}

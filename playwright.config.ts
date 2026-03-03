@@ -8,6 +8,10 @@ import { defineBddConfig } from 'playwright-bdd';
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+/**
+ * Define BDD configuration for feature files and step definitions
+ */
 const testDir = defineBddConfig({
   features: ['tests/.generated-features/**/*.feature'],
   steps: ['tests/steps/**/*.ts'],
@@ -17,6 +21,7 @@ const testDir = defineBddConfig({
  */
 export default defineConfig({
   //testDir: './tests/specs',
+  /* calling the testDir function to get the test directory from the BDD configuration */
   testDir,
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -37,20 +42,28 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    /* Ignore HTTPS errors. */
     ignoreHTTPSErrors: true,
+    /* Run tests in headless mode. */
     headless: process.env.CI ? true : false,
+    /* Capture screenshot on failure. */
     screenshot: 'only-on-failure',
+    /* Capture video */
     video: {
       mode: 'on',
       size: { width: 1920, height: 1080 },
     },
+    /* Set default timeouts for actions and navigation. */
     actionTimeout: 60 * 1000,
     navigationTimeout: 2 * 60 * 1000,
+    /* Set launch options to use the full available screen size. */
     launchOptions: { args: ["--start-maximized", "--disable-gpu"] },
   },
 
   expect: {
+    /* Maximum time expect() should wait for the condition to be met. */
     timeout: 60 * 1000,
+    
     toHaveScreenshot: {
       maxDiffPixels: 10,
     },

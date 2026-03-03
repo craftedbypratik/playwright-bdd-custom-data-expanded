@@ -1,6 +1,10 @@
 import fs from 'fs';
 import { DataReader } from '../data-reader.factory';
 
+/*
+* JsonReader implementation to read JSON files and convert them into an array of objects.
+* Each object represents a row in the JSON array. The JSON file must contain an array of objects at the root level.
+*/
 export class JsonReader implements DataReader {
 
   constructor(private filePath: string) {}
