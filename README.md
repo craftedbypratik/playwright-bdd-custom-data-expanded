@@ -16,7 +16,14 @@
 
 ## 🧠 What Is This?
 
-Most BDD frameworks make you hard-code test data in feature files or duplicate scenario outlines by hand. This framework solves that completely differently.
+**The Problem:**
+Most BDD + data-driven setups force you into bad tradeoffs:
+
+- Hardcode data in .feature files → unmaintainable as data grows
+- Commit generated feature files → they drift from the actual data source
+- Run a separate pre-processing script manually → breaks CI, breaks consistency
+
+This framework solves all three. Test data lives in Excel. Feature files are generated at runtime, executed, and cleaned up — automatically.
 
 **The core idea:** feature files are *templates*. At runtime, a pre-processor reads your `Examples:` block, fetches real data from **Excel / CSV / JSON**, and dynamically expands every row into a full Gherkin scenario — before Playwright ever runs a single test.
 
@@ -65,11 +72,11 @@ It also reads a **RunConfiguration Excel sheet** — tests marked `Run = YES` ar
 │                                                                 │
 │  Parses each .feature file for Scenario Outline + Examples:     │
 │                                                                 │
-│  ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐  │
-│  │ Inline Legacy│  │  Table Format  │  │ Pure Gherkin Table │  │
-│  │ Examples:{..}│  │ fileType/path/ │  │  (pass-through,    │  │
-│  │ (Excel only) │  │ fileName/sheet │  │   not expanded)    │  │
-│  └──────┬───────┘  └───────┬────────┘  └────────────────────┘  │
+│  ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐   │
+│  │ Inline Legacy│  │  Table Format  │  │ Pure Gherkin Table │   │
+│  │ Examples:{..}│  │ fileType/path/ │  │  (pass-through,    │   │
+│  │ (Excel only) │  │ fileName/sheet │  │   not expanded)    │   │
+│  └──────┬───────┘  └───────┬────────┘  └────────────────────┘   │
 │         └──────────────────┘                                    │
 │                      │                                          │
 │                      ▼                                          │
@@ -421,7 +428,13 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 
 <div align="center">
 
-**Built by [Pratik Sarkar](https://github.com/craftedbypratik)**
+---
+
+**Built by [Pratik Sarkar](https://github.com/craftedbypratik)**  
+📍 Kolkata, India · SDET @ Cognizant  
+🔗 [linkedin.com/in/pratik-sarkar-sdet](https://linkedin.com/in/pratik-sarkar-sdet)  
+💼 Open to SDET / Test Automation Engineering opportunities
+
 
 *Engineered to make data-driven BDD testing feel effortless.*
 
