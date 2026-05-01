@@ -17,7 +17,8 @@
     "image-size": "^2.0.2",
     "pdfkit": "^0.17.2",
     "playwright-bdd": "^8.5.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   },
   "dependencies": {}
 }
