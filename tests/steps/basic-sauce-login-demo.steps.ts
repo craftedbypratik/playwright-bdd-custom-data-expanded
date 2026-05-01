@@ -1,10 +1,19 @@
 import { createBdd } from "playwright-bdd";
 import { LoginPage } from "../pages/swagLabsDemo/loginPage.page";
 import { InventoryPage } from "../pages/swagLabsDemo/inventoryPage.page";
-import { Page } from "@playwright/test";
 import { PdfEvidenceOperations } from "../utils/pdf-evidence-operations.utils";
 import { DocxEvidenceOperations } from "../utils/docx-evidence-operations.utils";
-const { Given, When, Then } = createBdd();
+import { ScreenshotOperations } from "../utils/screenshot-operations.utils";
+const { Given, When, Then, Before, After } = createBdd();
+
+Before(async () => {
+    ScreenshotOperations.clear();
+});
+
+After(async () => {
+    await PdfEvidenceOperations.generate();
+    await DocxEvidenceOperations.generate();
+});
 
 let loginPage: LoginPage;
 let inventoryPage: InventoryPage;
@@ -36,7 +45,4 @@ Then('the user should be redirected to the Products inventory page', async ({ pa
     // From: tests/.generated-features/basic-login-demo-swaglabs.gen.feature:9:9
     inventoryPage = new InventoryPage(page);
     await inventoryPage.verifyOnInventoryPage();
-    await page.close();
-    await PdfEvidenceOperations.generate();
-    await DocxEvidenceOperations.generate();
 });

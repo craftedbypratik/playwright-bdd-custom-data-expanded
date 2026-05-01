@@ -2,12 +2,34 @@ import { test, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
+type Shot = {
+  path: string;
+  name: string;
+  time: string;
+};
+
 export class ScreenshotOperations {
 
-  /**
-   * Takes a screenshot and stores it inside test output directory
-   * Can also be used to attach into the PDF or the DOCX reports
-   */
+  private static readonly shotsByTest = new Map<string, Shot[]>();
+
+  private static getTestKey(): string {
+    const info = test.info();
+    return [
+      info.project.name,
+      info.titlePath.join('::'),
+      info.retry,
+      info.repeatEachIndex,
+    ].join('::');
+  }
+
+  static clear(): void {
+    ScreenshotOperations.shotsByTest.delete(ScreenshotOperations.getTestKey());
+  }
+
+  static getShots(): Shot[] {
+    return ScreenshotOperations.shotsByTest.get(ScreenshotOperations.getTestKey()) ?? [];
+  }
+
   static async save(
     page: Page,
     name: string
@@ -20,9 +42,8 @@ export class ScreenshotOperations {
       .replace(/\s+/g, '-')
       .substring(0, 150);
 
-    // Track screenshots on testInfo
-    const testInfoAny = test.info() as any;
-    testInfoAny._shots = testInfoAny._shots || [];
+    const key = ScreenshotOperations.getTestKey();
+    const shots = ScreenshotOperations.shotsByTest.get(key) ?? [];
 
     const dir = path.join(test.info().outputDir, 'screens');
     fs.mkdirSync(dir, { recursive: true });
@@ -32,18 +53,12 @@ export class ScreenshotOperations {
 
     fs.writeFileSync(filepath, buffer);
 
-    testInfoAny._shots.push({
-      path: filepath,
-      name,
-      time: new Date().toISOString()
-    });
+    shots.push({ path: filepath, name, time: new Date().toISOString() });
+    ScreenshotOperations.shotsByTest.set(key, shots);
 
     console.info(`[Screenshot saved] ${name}`);
   }
 
-  /**
-   * Takes a screenshot and attaches it to Playwright HTML report
-   */
   static async attach(
     page: Page,
     name: string

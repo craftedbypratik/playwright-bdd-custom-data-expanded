@@ -4,6 +4,7 @@ import path from 'path';
 import sizeOf from 'image-size';
 import { test } from '@playwright/test';
 import { getCurrentTimestamp } from './time-stamp.utils';
+import { ScreenshotOperations } from './screenshot-operations.utils';
 
 export class PdfEvidenceOperations {
 
@@ -12,7 +13,7 @@ export class PdfEvidenceOperations {
      */
     static async generate(): Promise<void> {
 
-        const shots = (test.info() as any)._shots || [];
+        const shots = ScreenshotOperations.getShots();
         if (!shots.length) return;
 
         const fileTitle = test.info().titlePath[2].replace(/[^a-z0-9]/gi, '_');

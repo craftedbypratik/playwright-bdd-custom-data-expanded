@@ -5,7 +5,7 @@
 ### A pre-processing BDD architecture that separates feature parsing, data expansion, and execution into cleanly decoupled layers
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Playwright](https://img.shields.io/badge/Playwright-1.58-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.59-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 [![playwright-bdd](https://img.shields.io/badge/playwright--bdd-8.x-orange?style=for-the-badge)](https://github.com/vitalets/playwright-bdd)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D16-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
@@ -94,10 +94,11 @@ It also reads a **RunConfiguration Excel sheet** — tests marked `Run = YES` ar
 │                                                                 │
 │  Step Definitions  →  Page Objects  →  JSON Locators            │
 │                                                                 │
-│  Per step:  ScreenshotOperations.save()                         │
-│  Post test: PdfEvidenceOperations.generate()                    │
-│             DocxEvidenceOperations.generate()                   │
-│             Video attachment (always-on, 1920×1080)             │
+│  Per step:   ScreenshotOperations.save()                        │
+│  Before hook: ScreenshotOperations.clear()  (per retry)         │
+│  After hook:  PdfEvidenceOperations.generate()                  │
+│               DocxEvidenceOperations.generate()                 │
+│               Video attachment (always-on, 1920×1080)           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -319,6 +320,15 @@ After each test, the framework automatically generates rich evidence artifacts a
 ### What gets captured
 
 Every call to `ScreenshotOperations.save(page, 'Step name')` captures a PNG screenshot with a step label and timestamp, stored in `test-results/<test>/screens/`.
+
+Screenshots are tracked in a **static Map keyed by test + retry index** — so if Playwright retries a failed test, each attempt gets its own isolated evidence bucket. No screenshots from a failed attempt bleed into the next retry's PDF.
+
+### Lifecycle — Before / After hooks
+
+Evidence generation is managed by hooks in the step definition file, not inside individual steps:
+
+- **Before hook** — clears the screenshot bucket for the current attempt before anything runs
+- **After hook** — generates the PDF and DOCX and attaches them to the report, always — even if the test crashes mid-scenario
 
 ### PDF Evidence
 

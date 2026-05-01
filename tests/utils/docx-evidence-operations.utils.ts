@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { test } from '@playwright/test';
+import { ScreenshotOperations } from './screenshot-operations.utils';
 import {
     Document,
     Packer,
@@ -19,7 +20,7 @@ export class DocxEvidenceOperations {
      */
     static async generate(): Promise<void> {
 
-        const shots = (test.info() as any)._shots || [];
+        const shots = ScreenshotOperations.getShots();
         if (!shots.length) return;
 
         const fileTitle = test.info().titlePath[2].replace(/[^a-z0-9]/gi, '_');
