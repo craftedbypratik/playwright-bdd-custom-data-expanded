@@ -25,28 +25,28 @@ Most BDD + data-driven setups force you into bad tradeoffs:
 
 This framework solves all three. Test data lives in Excel. Feature files are generated at runtime, executed, and cleaned up — automatically.
 
-**The core idea:** feature files are *templates*. At runtime, a pre-processor reads your `Examples:` block, fetches real data from **Excel / CSV / JSON**, and dynamically expands every row into a full Gherkin scenario — before Playwright ever runs a single test.
+**The core idea:** feature files are _templates_. At runtime, a pre-processor reads your `Examples:` block, fetches real data from **Excel / CSV / JSON**, and dynamically expands every row into a full Gherkin scenario — before Playwright ever runs a single test.
 
 Think of it like the **Quantum framework's data injection model**, but built natively on top of Playwright BDD with strict TypeScript, a pluggable reader abstraction, and zero external test-management dependencies.
 
-It also reads a **RunConfiguration Excel sheet** — tests marked `Run = YES` are automatically selected, just like enterprise frameworks, without a separate CI toggle per test.
+It also reads a **RunConfiguration Excel sheet** — tests marked `Run = Yes` are automatically selected, just like enterprise frameworks, without a separate CI toggle per test.
 
 ---
 
 ## ✨ Key Features
 
-| Capability | Detail |
-|---|---|
+| Capability                        | Detail                                                                                                                           |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | 🔄 **Runtime Feature Generation** | Scans `.feature` files, expands `Examples:` from external data sources, writes `.gen.feature` files, and cleans them up post-run |
-| 📊 **Pluggable Data Readers** | Factory pattern supporting **Excel (ExcelJS)**, **CSV**, and **JSON** with a shared `DataReader` interface |
-| 🗂️ **RunConfiguration Control** | An Excel sheet (`RunConfig`) drives which test cases execute — mark `Run = YES` and the runner picks them up automatically |
-| 🎭 **Playwright BDD Integration** | Built on `playwright-bdd` — full Gherkin support, `@tags`, `Scenario Outline`, and all Playwright fixtures |
-| 📸 **Rich Evidence Reporting** | Per-step screenshots compiled into branded **PDF** and **DOCX** evidence files, attached to the Playwright HTML report |
-| 🎬 **Video Recording** | Full 1920×1080 video captured for every test run out of the box |
-| 🌐 **Cross-Browser** | Chromium, Firefox, WebKit, Chrome, Edge, Mobile Chrome, Mobile Safari — all pre-configured |
-| 🏗️ **Page Object Model** | Strict POM with JSON-based external locator files, fully decoupled from step logic |
-| 🔒 **Strict TypeScript** | `strict: true`, ES2020 target, runtime validation throughout |
-| ⚙️ **CI Ready** | Headless mode, retry logic, parallel execution, and `forbidOnly` — all configured for CI environments |
+| 📊 **Pluggable Data Readers**     | Factory pattern supporting **Excel (ExcelJS)**, **CSV**, and **JSON** with a shared `DataReader` interface                       |
+| 🗂️ **RunConfiguration Control**   | An Excel sheet (`RunConfig`) drives which test cases execute — mark `Run = Yes` and the runner picks them up automatically       |
+| 🎭 **Playwright BDD Integration** | Built on `playwright-bdd` — full Gherkin support, `@tags`, `Scenario Outline`, and all Playwright fixtures                       |
+| 📸 **Rich Evidence Reporting**    | Per-step screenshots compiled into branded **PDF** and **DOCX** evidence files, attached to the Playwright HTML report           |
+| 🎬 **Video Recording**            | Full 1920×1080 video captured for every test run out of the box                                                                  |
+| 🌐 **Cross-Browser**              | Chromium, Firefox, WebKit, Chrome, Edge, Mobile Chrome, Mobile Safari — all pre-configured                                       |
+| 🏗️ **Page Object Model**          | Strict POM with JSON-based external locator files, fully decoupled from step logic                                               |
+| 🔒 **Strict TypeScript**          | `strict: true`, ES2020 target, runtime validation throughout                                                                     |
+| ⚙️ **CI Ready**                   | Headless mode, retry logic, parallel execution, and `forbidOnly` — all configured for CI environments                            |
 
 ---
 
@@ -55,13 +55,13 @@ It also reads a **RunConfiguration Excel sheet** — tests marked `Run = YES` ar
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        BDD RUNNER                               │
-│              tests/runners/bdd-runner.run.ts                    │
+│    tests/runners/bdd-runner.run.ts  (or .ui.ts / .debug.ts)     │
 │                                                                 │
-│  1. Read RunConfiguration.xlsx  →  collect TestCaseIds (Run=YES)│
+│  1. Read RunConfiguration.xlsx  →  collect TestCaseIds (Run=Yes)│
 │  2. CLI override  →  --test=<id>  bypasses RunConfig            │
 │  3. Expand features  →  write to tests/.generated-features/     │
 │  4. npx bddgen  →  compile generated features                   │
-│  5. npx playwright test --grep <tags>                           │
+│  5. npx playwright test --grep <tags>  [+ --ui / --debug]       │
 │  6. Cleanup  →  delete .generated-features/                     │
 └───────────────┬─────────────────────────────────────────────────┘
                 │
@@ -138,10 +138,13 @@ playwright-bdd-custom/
     │       └── locator_inventoryPage.json
     │
     ├── runners/
-    │   └── bdd-runner.run.ts         # 🚀  Orchestration entrypoint
+    │   ├── bdd-runner.run.ts         # 🚀  Orchestration entrypoint (headless CI)
+    │   ├── bdd-runner.ui.ts          # 🖥️  UI mode runner (Playwright UI)
+    │   ├── bdd-runner.debug.ts       # 🐛  Debug runner (Playwright Inspector)
+    │   └── bdd-runner-prep.utils.ts  # 🔧  Shared prep logic (used by ui + debug runners)
     │
     ├── config/
-    │   └── RunConfiguration.xlsx     # ☑️   Controls which tests run (Run=YES)
+    │   └── RunConfiguration.xlsx     # ☑️   Controls which tests run (Run=Yes)
     │
     ├── testdata/                     # 📦  Test data files
     │   ├── swagLabsLogin.xlsx
@@ -187,8 +190,26 @@ npx playwright install
 
 This is the primary way to run tests. It reads `RunConfiguration.xlsx`, expands feature files, and orchestrates the full Playwright run.
 
+**Using npm scripts (recommended shorthand)**
+
 ```bash
-# Run all tests marked Run=YES in RunConfiguration.xlsx
+# Run all tests marked Run=Yes in RunConfiguration.xlsx
+npm run bdd
+
+# Run a specific test by tag (bypasses RunConfig)
+npm run bdd -- --test=swagLabsLoginJson
+
+# Restrict to a specific browser
+npm run bdd -- --project=chromium
+
+# Combine both
+npm run bdd -- --test=swagLabsLoginJson --project=chromium
+```
+
+**Using ts-node directly (also supported)**
+
+```bash
+# Run all tests marked Run=Yes in RunConfiguration.xlsx
 npx ts-node tests/runners/bdd-runner.run.ts
 
 # Run a specific test by tag (bypasses RunConfig)
@@ -199,6 +220,42 @@ npx ts-node tests/runners/bdd-runner.run.ts --project=chromium
 
 # Combine both
 npx ts-node tests/runners/bdd-runner.run.ts --test=swagLabsLoginJson --project=chromium
+```
+
+### Run Tests in UI Mode
+
+Opens the Playwright UI. Generated features stay on disk while the window is open so in-session re-runs work correctly. Cleanup happens automatically after the window is closed.
+
+```bash
+# Open Playwright UI with RunConfig-driven tests
+npm run bdd:ui
+
+# Open UI pre-filtered to a specific test
+npm run bdd:ui -- --test=swagLabsLoginJson
+
+# Open UI pre-filtered to a specific test on a specific browser
+npm run bdd:ui -- --test=swagLabsLoginJson --project=chromium
+
+# Using ts-node directly
+npx ts-node tests/runners/bdd-runner.ui.ts --test=swagLabsLoginJson
+```
+
+### Run Tests in Debug Mode
+
+Opens the Playwright Inspector. Automatically forces `--workers=1` and `--timeout=0` — no manual flags needed.
+
+```bash
+# Debug with RunConfig-driven tests
+npm run bdd:debug
+
+# Debug a specific test
+npm run bdd:debug -- --test=swagLabsLoginJson
+
+# Debug a specific test on a specific browser
+npm run bdd:debug -- --test=swagLabsLoginJson --project=chromium
+
+# Using ts-node directly
+npx ts-node tests/runners/bdd-runner.debug.ts --test=swagLabsLoginJson --project=chromium
 ```
 
 ### Run Tests (Playwright Directly)
@@ -244,7 +301,7 @@ npm run format:check
 
 The `BDD Expander` supports **four ways** to reference external test data in your `Examples:` block. All of them are automatically expanded into full Gherkin data tables at runtime.
 
-### Format 1 — New Generic Table *(Recommended)*
+### Format 1 — New Generic Table _(Recommended)_
 
 Supports Excel, CSV, and JSON through the `fileType` discriminator:
 
@@ -284,7 +341,7 @@ Scenario Outline: Login with data from Excel
     Examples:{'datafile': 'tests/testdata/swagLabsLogin.xlsx', 'sheetName': 'Login'}
 ```
 
-### Format 4 — Pure Gherkin *(pass-through, not expanded)*
+### Format 4 — Pure Gherkin _(pass-through, not expanded)_
 
 Standard Gherkin `Examples:` tables with actual test values are detected automatically and passed through unchanged.
 
@@ -302,13 +359,13 @@ Standard Gherkin `Examples:` tables with actual test values are detected automat
 
 Place a `RunConfiguration.xlsx` file at `tests/config/RunConfiguration.xlsx` with a sheet named **`RunConfig`**.
 
-| TestCaseId | Run |
-|---|---|
-| swagLabsLoginJson | YES |
-| swagLabsLoginCsv | NO |
-| swagLabsLoginExcelNew | YES |
+| TestCaseId            | Run |
+| --------------------- | --- |
+| swagLabsLoginJson     | Yes |
+| swagLabsLoginCsv      | No  |
+| swagLabsLoginExcelNew | Yes |
 
-The runner reads this sheet and automatically builds the `--grep` tag filter. Only rows where `Run = YES` are executed. No manual CLI editing needed for day-to-day runs.
+The runner reads this sheet and automatically builds the `--grep` tag filter. Only rows where `Run = Yes` are executed. No manual CLI editing needed for day-to-day runs.
 
 ---
 
@@ -374,26 +431,46 @@ All three artifacts (PDF, DOCX, video) are attached to the test in the **Playwri
 
 ## 🌐 Browser Matrix
 
-| Browser | Mode |
-|---|---|
-| Chromium | Desktop, fullscreen |
-| Firefox | Desktop, fullscreen |
-| WebKit (Safari) | Desktop, fullscreen |
+| Browser          | Mode                |
+| ---------------- | ------------------- |
+| Chromium         | Desktop, fullscreen |
+| Firefox          | Desktop, fullscreen |
+| WebKit (Safari)  | Desktop, fullscreen |
 | Chrome (branded) | Desktop, fullscreen |
-| Microsoft Edge | Desktop, fullscreen |
-| Mobile Chrome | Pixel 5 |
-| Mobile Safari | iPhone 12 |
+| Microsoft Edge   | Desktop, fullscreen |
+| Mobile Chrome    | Pixel 5             |
+| Mobile Safari    | iPhone 12           |
 
 ---
 
 ## ⚙️ CLI Reference
 
+### npm scripts
+
+| Script              | Description                                             |
+| ------------------- | ------------------------------------------------------- |
+| `npm run bdd`       | Headless run driven by RunConfiguration.xlsx            |
+| `npm run bdd:ui`    | Opens Playwright UI with RunConfig-filtered tests       |
+| `npm run bdd:debug` | Opens Playwright Inspector (auto: workers=1, timeout=0) |
+
+All scripts accept passthrough flags after `--`:
+
 ```bash
-# BDD Runner flags
+npm run bdd -- --test=<tagName> --project=<name>
+npm run bdd:ui -- --test=<tagName>
+npm run bdd:debug -- --test=<tagName> --project=<name>
+```
+
+### BDD Runner flags
+
+```bash
 --test=<tagName>      Run a single test by its @tag (skips RunConfig)
 --project=<name>      Restrict to a Playwright project (chromium, firefox, chrome, etc.)
+```
 
-# Playwright flags (direct)
+### Playwright flags (direct)
+
+```bash
 --headed              Run in headed browser mode
 --debug               Open Playwright Inspector
 --grep="@tag"         Filter by tag
@@ -425,20 +502,20 @@ All three artifacts (PDF, DOCX, video) are attached to the test in the **Playwri
 
 ## 🔬 Tech Stack
 
-| Package | Purpose |
-|---|---|
-| `@playwright/test` | Core test runner and browser automation |
-| `playwright-bdd` | BDD / Gherkin layer on top of Playwright |
-| `exceljs` | Excel file reading and writing (data + RunConfig) |
-| `csv-parse` | CSV file parsing for data readers |
-| `properties-reader` | `.properties` file reading |
-| `pdfkit` | PDF evidence generation |
-| `docx` | DOCX evidence generation |
-| `image-size` | Image dimension detection for PDF layout |
-| `ts-node` | TypeScript execution for the BDD runner |
-| `typescript` | Strict typing, ES2020, CommonJS modules |
-| `eslint` + `typescript-eslint` | Linting with TypeScript-aware rules |
-| `prettier` | Opinionated code formatting |
+| Package                        | Purpose                                           |
+| ------------------------------ | ------------------------------------------------- |
+| `@playwright/test`             | Core test runner and browser automation           |
+| `playwright-bdd`               | BDD / Gherkin layer on top of Playwright          |
+| `exceljs`                      | Excel file reading and writing (data + RunConfig) |
+| `csv-parse`                    | CSV file parsing for data readers                 |
+| `properties-reader`            | `.properties` file reading                        |
+| `pdfkit`                       | PDF evidence generation                           |
+| `docx`                         | DOCX evidence generation                          |
+| `image-size`                   | Image dimension detection for PDF layout          |
+| `ts-node`                      | TypeScript execution for the BDD runner           |
+| `typescript`                   | Strict typing, ES2020, CommonJS modules           |
+| `eslint` + `typescript-eslint` | Linting with TypeScript-aware rules               |
+| `prettier`                     | Opinionated code formatting                       |
 
 ---
 
@@ -450,6 +527,10 @@ All three artifacts (PDF, DOCX, video) are attached to the test in the **Playwri
 4. Run the full suite locally before opening a PR:
 
 ```bash
+# Using npm script
+npm run bdd
+
+# Or directly
 npx ts-node tests/runners/bdd-runner.run.ts
 ```
 
@@ -470,7 +551,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 🔗 [linkedin.com/in/pratik-sarkar-sdet](https://linkedin.com/in/pratik-sarkar-sdet)  
 💼 Open to SDET / Test Automation Engineering opportunities
 
-
-*Engineered to make data-driven BDD testing feel effortless.*
+_Engineered to make data-driven BDD testing feel effortless._
 
 </div>

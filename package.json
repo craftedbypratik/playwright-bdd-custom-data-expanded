@@ -4,6 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "bdd": "ts-node tests/runners/bdd-runner.run.ts",
+    "bdd:ui": "ts-node tests/runners/bdd-runner.ui.ts",
+    "bdd:debug": "ts-node tests/runners/bdd-runner.debug.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

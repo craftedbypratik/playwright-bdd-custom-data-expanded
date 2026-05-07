@@ -35,8 +35,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run BDD Generator + Playwright
-        run: |
-          npx ts-node tests/runners/bdd-runner.run.ts --project=chromium
+        run: npm run bdd -- --project=chromium
 
       - name: Upload Playwright Report
         if: always()
