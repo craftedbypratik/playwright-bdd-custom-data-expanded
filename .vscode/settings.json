@@ -1,0 +1,20 @@
+{
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "always"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "cucumberautocomplete.steps": [
+        "tests/steps/**.steps.ts"
+    ],
+    "cucumberautocomplete.syncfeatures": "test/features/*.feature",
+    "[feature]": {
+        "editor.defaultFormatter": "alexkrechik.cucumberautocomplete"
+    }
+}

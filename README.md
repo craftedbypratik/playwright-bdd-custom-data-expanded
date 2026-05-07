@@ -110,6 +110,9 @@ It also reads a **RunConfiguration Excel sheet** — tests marked `Run = YES` ar
 playwright-bdd-custom/
 ├── playwright.config.ts              # Multi-browser config, video, timeouts, CI flags
 ├── tsconfig.json                     # Strict TypeScript — ES2020, CommonJS
+├── eslint.config.js                  # ESLint v9 flat config (TypeScript + Prettier rules)
+├── .prettierrc                       # Prettier formatting rules
+├── .prettierignore                   # Prettier ignore list (mirrors .gitignore)
 ├── package.json
 │
 └── tests/
@@ -215,6 +218,24 @@ npx playwright test --headed --debug
 
 ```bash
 npx playwright show-report
+```
+
+### Lint & Format
+
+ESLint and Prettier are wired up as npm scripts. In VS Code, formatting runs automatically on save via the `esbenp.prettier-vscode` extension (configured in `.vscode/settings.json`).
+
+```bash
+# Check for lint errors
+npm run lint
+
+# Auto-fix lint errors
+npm run lint:fix
+
+# Format all files with Prettier
+npm run format
+
+# Check formatting without writing (useful in CI)
+npm run format:check
 ```
 
 ---
@@ -409,11 +430,15 @@ All three artifacts (PDF, DOCX, video) are attached to the test in the **Playwri
 | `@playwright/test` | Core test runner and browser automation |
 | `playwright-bdd` | BDD / Gherkin layer on top of Playwright |
 | `exceljs` | Excel file reading and writing (data + RunConfig) |
+| `csv-parse` | CSV file parsing for data readers |
+| `properties-reader` | `.properties` file reading |
 | `pdfkit` | PDF evidence generation |
 | `docx` | DOCX evidence generation |
 | `image-size` | Image dimension detection for PDF layout |
 | `ts-node` | TypeScript execution for the BDD runner |
 | `typescript` | Strict typing, ES2020, CommonJS modules |
+| `eslint` + `typescript-eslint` | Linting with TypeScript-aware rules |
+| `prettier` | Opinionated code formatting |
 
 ---
 
