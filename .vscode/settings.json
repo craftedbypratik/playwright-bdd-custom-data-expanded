@@ -13,7 +13,7 @@
     "cucumberautocomplete.steps": [
         "tests/steps/**.steps.ts"
     ],
-    "cucumberautocomplete.syncfeatures": "test/features/*.feature",
+    "cucumberautocomplete.syncfeatures": "tests/features/**.feature",
     "[feature]": {
         "editor.defaultFormatter": "alexkrechik.cucumberautocomplete"
     }
