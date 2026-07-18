@@ -4,9 +4,9 @@
 
 ### A pre-processing BDD architecture that separates feature parsing, data expansion, and execution into cleanly decoupled layers
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Playwright](https://img.shields.io/badge/Playwright-1.59-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
-[![playwright-bdd](https://img.shields.io/badge/playwright--bdd-8.x-orange?style=for-the-badge)](https://github.com/vitalets/playwright-bdd)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.61-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
+[![playwright-bdd](https://img.shields.io/badge/playwright--bdd-9.x-orange?style=for-the-badge)](https://github.com/vitalets/playwright-bdd)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D16-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
 
@@ -109,8 +109,11 @@ It also reads a **RunConfiguration Excel sheet** — tests marked `Run = Yes` ar
 ```
 playwright-bdd-custom/
 ├── playwright.config.ts              # Multi-browser config, video, timeouts, CI flags
-├── tsconfig.json                     # Strict TypeScript — ES2020, CommonJS
-├── eslint.config.js                  # ESLint v9 flat config (TypeScript + Prettier rules)
+├── tsconfig.json                     # Strict TypeScript — ES2020, Node16 modules
+├── eslint.config.js                  # ESLint flat config (@eslint/js + Prettier rules)
+├── scripts/
+│   ├── update-deps.sh                # 🔄 Update all deps to latest (Mac/Linux)
+│   └── update-deps.ps1               # 🔄 Update all deps to latest (Windows)
 ├── .prettierrc                       # Prettier formatting rules
 ├── .prettierignore                   # Prettier ignore list (mirrors .gitignore)
 ├── package.json
@@ -206,20 +209,20 @@ npm run bdd -- --project=chromium
 npm run bdd -- --test=swagLabsLoginJson --project=chromium
 ```
 
-**Using ts-node directly (also supported)**
+**Using tsx directly (also supported)**
 
 ```bash
 # Run all tests marked Run=Yes in RunConfiguration.xlsx
-npx ts-node tests/runners/bdd-runner.run.ts
+npx tsx tests/runners/bdd-runner.run.ts
 
 # Run a specific test by tag (bypasses RunConfig)
-npx ts-node tests/runners/bdd-runner.run.ts --test=swagLabsLoginJson
+npx tsx tests/runners/bdd-runner.run.ts --test=swagLabsLoginJson
 
 # Restrict to a specific browser
-npx ts-node tests/runners/bdd-runner.run.ts --project=chromium
+npx tsx tests/runners/bdd-runner.run.ts --project=chromium
 
 # Combine both
-npx ts-node tests/runners/bdd-runner.run.ts --test=swagLabsLoginJson --project=chromium
+npx tsx tests/runners/bdd-runner.run.ts --test=swagLabsLoginJson --project=chromium
 ```
 
 ### Run Tests in UI Mode
@@ -236,8 +239,8 @@ npm run bdd:ui -- --test=swagLabsLoginJson
 # Open UI pre-filtered to a specific test on a specific browser
 npm run bdd:ui -- --test=swagLabsLoginJson --project=chromium
 
-# Using ts-node directly
-npx ts-node tests/runners/bdd-runner.ui.ts --test=swagLabsLoginJson
+# Using tsx directly
+npx tsx tests/runners/bdd-runner.ui.ts --test=swagLabsLoginJson
 ```
 
 ### Run Tests in Debug Mode
@@ -254,8 +257,8 @@ npm run bdd:debug -- --test=swagLabsLoginJson
 # Debug a specific test on a specific browser
 npm run bdd:debug -- --test=swagLabsLoginJson --project=chromium
 
-# Using ts-node directly
-npx ts-node tests/runners/bdd-runner.debug.ts --test=swagLabsLoginJson --project=chromium
+# Using tsx directly
+npx tsx tests/runners/bdd-runner.debug.ts --test=swagLabsLoginJson --project=chromium
 ```
 
 ### Run Tests (Playwright Directly)
@@ -512,9 +515,9 @@ npm run bdd:debug -- --test=<tagName> --project=<name>
 | `pdfkit`                       | PDF evidence generation                           |
 | `docx`                         | DOCX evidence generation                          |
 | `image-size`                   | Image dimension detection for PDF layout          |
-| `ts-node`                      | TypeScript execution for the BDD runner           |
-| `typescript`                   | Strict typing, ES2020, CommonJS modules           |
-| `eslint` + `typescript-eslint` | Linting with TypeScript-aware rules               |
+| `tsx`                          | TypeScript execution for the BDD runner           |
+| `typescript`                   | Strict typing, ES2020, Node16 modules             |
+| `eslint`                       | Linting with flat config + Prettier rules         |
 | `prettier`                     | Opinionated code formatting                       |
 
 ---
@@ -531,7 +534,7 @@ npm run bdd:debug -- --test=<tagName> --project=<name>
 npm run bdd
 
 # Or directly
-npx ts-node tests/runners/bdd-runner.run.ts
+npx tsx tests/runners/bdd-runner.run.ts
 ```
 
 ---

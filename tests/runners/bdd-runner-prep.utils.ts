@@ -97,7 +97,7 @@ export async function prepareRun(): Promise<RunnerPrepResult> {
 
   if (runnableTags.length > 0) {
     console.log(`Running the following tests: ${runnableTags.join(', ').trim()}`);
-    baseCmd += ` --grep "${runnableTags.join('|')}"`;
+    baseCmd += ` --grep "${runnableTags.map((t) => `${t}$`).join('|')}"`;
   }
 
   if (project) {

@@ -1,11 +1,9 @@
 const eslint = require('@eslint/js');
-const tseslint = require('typescript-eslint');
 const prettierConfig = require('eslint-config-prettier');
 const prettierPlugin = require('eslint-plugin-prettier');
 
-module.exports = tseslint.config(
+module.exports = [
   eslint.configs.recommended,
-  tseslint.configs.recommended,
   prettierConfig,
   {
     plugins: {
@@ -13,17 +11,10 @@ module.exports = tseslint.config(
     },
     rules: {
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
-    },
-    languageOptions: {
-      parserOptions: {
-        project: true,
-        tsconfigRootDir: __dirname,
-      },
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
   {
     ignores: ['node_modules/**', 'dist/**', '.features-gen/**', 'playwright-report/**'],
-  }
-);
+  },
+];

@@ -28,99 +28,95 @@ import { RunConfigOperations } from '../utils/run-config-operations.utils';
  */
 
 async function main() {
-    const args = process.argv.slice(2);
+  const args = process.argv.slice(2);
 
-    let testId: string | undefined;
-    let project: string | undefined;
+  let testId: string | undefined;
+  let project: string | undefined;
 
-
-
-    /* -------------------------------------------------- */
-    /* Parse CLI flags                                    */
-    /* -------------------------------------------------- */
-    for (const arg of args) {
-        if (arg.startsWith('--test=')) {
-            testId = arg.split('=')[1]?.trim();
-        }
-
-        if (arg.startsWith('--project=')) {
-            project = arg.split('=')[1]?.trim();
-        }
+  /* -------------------------------------------------- */
+  /* Parse CLI flags                                    */
+  /* -------------------------------------------------- */
+  for (const arg of args) {
+    if (arg.startsWith('--test=')) {
+      testId = arg.split('=')[1]?.trim();
     }
 
-    /* -------------------------------------------------- */
-    /* Resolve runnable tags                              */
-    /* -------------------------------------------------- */
-    let runnableTags: string[] = [];
-
-    if (testId) {
-        // Explicit CLI mode → ignore RunConfig
-        runnableTags = [`@${testId}`];
-    } else {
-        // RunConfig-driven mode
-        const runConfigPath = 'tests/config/RunConfiguration.xlsx';
-
-        if (fs.existsSync(runConfigPath)) {
-            const tags = await RunConfigOperations.getRunnableTags(runConfigPath);
-            runnableTags = tags.map(t => `@${t}`);
-        }
+    if (arg.startsWith('--project=')) {
+      project = arg.split('=')[1]?.trim();
     }
+  }
 
-    /* -------------------------------------------------- */
-    /* Expand BDD features                                */
-    /* -------------------------------------------------- */
-    const featureFiles = glob.sync('tests/**/*.feature', {
-        ignore: ['**/*.gen.feature', '**/.generated-features/**']
-    });
+  /* -------------------------------------------------- */
+  /* Resolve runnable tags                              */
+  /* -------------------------------------------------- */
+  let runnableTags: string[] = [];
 
-    if (!featureFiles.length) {
-        console.warn('No feature files found.');
-        return;
+  if (testId) {
+    // Explicit CLI mode → ignore RunConfig
+    runnableTags = [`@${testId}`];
+  } else {
+    // RunConfig-driven mode
+    const runConfigPath = 'tests/config/RunConfiguration.xlsx';
+
+    if (fs.existsSync(runConfigPath)) {
+      const tags = await RunConfigOperations.getRunnableTags(runConfigPath);
+      runnableTags = tags.map((t) => `@${t}`);
     }
+  }
 
-    const generatedDir = path.join('tests', '.generated-features');
+  /* -------------------------------------------------- */
+  /* Expand BDD features                                */
+  /* -------------------------------------------------- */
+  const featureFiles = glob.sync('tests/**/*.feature', {
+    ignore: ['**/*.gen.feature', '**/.generated-features/**'],
+  });
 
-    if (fs.existsSync(generatedDir)) {
-        fs.rmSync(generatedDir, { recursive: true, force: true });
-    }
-    fs.mkdirSync(generatedDir, { recursive: true });
+  if (!featureFiles.length) {
+    console.warn('No feature files found.');
+    return;
+  }
 
-    for (const feature of featureFiles) {
-        await expandFeatureWithExternalData(feature, generatedDir);
-    }
+  const generatedDir = path.join('tests', '.generated-features');
 
-    console.log('Running bddgen command...');
-    execSync('npx bddgen', { stdio: 'inherit' });
-
-    /* -------------------------------------------------- */
-    /* Build Playwright command                           */
-    /* -------------------------------------------------- */
-
-
-    let cmd = `npx playwright test`;
-
-    if (runnableTags.length > 0) {
-        console.log(`Running the following tests: ${runnableTags.join(', ').trim()}`);
-        cmd += ` --grep "${runnableTags.join('|')}"`;
-    }
-
-    if (project) {
-        cmd += ` --project=${project}`;
-    }
-
-    console.log('\n>> Executing:\n', cmd, '\n');
-    execSync(cmd, { stdio: 'inherit' });
-
-    /* -------------------------------------------------- */
-    /* Cleanup                                            */
-    /* -------------------------------------------------- */
-    console.log('Cleaning up...');
+  if (fs.existsSync(generatedDir)) {
     fs.rmSync(generatedDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(generatedDir, { recursive: true });
 
+  for (const feature of featureFiles) {
+    await expandFeatureWithExternalData(feature, generatedDir);
+  }
+
+  console.log('Running bddgen command...');
+  execSync('npx bddgen', { stdio: 'inherit' });
+
+  /* -------------------------------------------------- */
+  /* Build Playwright command                           */
+  /* -------------------------------------------------- */
+
+  let cmd = `npx playwright test`;
+
+  if (runnableTags.length > 0) {
+    console.log(`Running the following tests: ${runnableTags.join(', ').trim()}`);
+    cmd += ` --grep "${runnableTags.map((t) => `${t}$`).join('|')}"`;
+  }
+
+  if (project) {
+    cmd += ` --project=${project}`;
+  }
+
+  console.log('\n>> Executing:\n', cmd, '\n');
+  execSync(cmd, { stdio: 'inherit' });
+
+  /* -------------------------------------------------- */
+  /* Cleanup                                            */
+  /* -------------------------------------------------- */
+  console.log('Cleaning up...');
+  fs.rmSync(generatedDir, { recursive: true, force: true });
 }
 
-main().catch(err => {
-    console.error('\nBDD Runner failed\n');
-    console.error(err);
-    process.exit(1);
+main().catch((err) => {
+  console.error('\nBDD Runner failed\n');
+  console.error(err);
+  process.exit(1);
 });
