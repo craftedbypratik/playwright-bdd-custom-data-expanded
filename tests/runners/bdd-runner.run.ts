@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import glob from 'glob';
+import { sync as globSync } from 'fast-glob';
 import { execSync } from 'child_process';
 
 import { expandFeatureWithExternalData } from '../utils/bdd-expander/excel-bdd-expander';
@@ -67,7 +67,7 @@ async function main() {
   /* -------------------------------------------------- */
   /* Expand BDD features                                */
   /* -------------------------------------------------- */
-  const featureFiles = glob.sync('tests/**/*.feature', {
+  const featureFiles = globSync('tests/**/*.feature', {
     ignore: ['**/*.gen.feature', '**/.generated-features/**'],
   });
 
